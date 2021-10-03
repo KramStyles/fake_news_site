@@ -17,7 +17,7 @@ def check_news():
         msg = "Please input a larger paragraph to ensure the prediction is accurate"
     else:
         try:
-            msg = news
+            msg = check_news_auth(news)
         except Exception as err:
             msg = str(err)
     return msg

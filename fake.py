@@ -17,15 +17,31 @@ import re
 import gensim
 from wordcloud import WordCloud
 
-pd.read_csv('https://raw.githubusercontent.com/laxmimerit/fake-real-news-dataset/main/data/Fake.csv')
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Embedding, LSTM, Conv1D, MaxPool1D
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, accuracy_score
 
-fake_news = pd.read_csv('https://raw.githubusercontent.com/laxmimerit/fake-real-news-dataset/main/data/Fake.csv')
-# fake_news.sample(3)
-fake_news['subject'].value_counts()
+# !pip install spacy==2.2.3
+# !python -m spacy download en_core_web_sm
+# !pip install beautifulsoup4==4.9.1
+# !pip install textblob==0.15.3
+# !pip install https://github.com/laxmimerit/preprocess_kgptalkie.git --upgrade --force-reinstall
+# !pip install https://github.com/laxmimerit/preprocess_kgptalkie/archive/refs/heads/master.zip --upgrade --force-reinstall
+
+import preprocess_kgptalkie as ps
+
+
+# fake_news = pd.read_csv('https://raw.githubusercontent.com/laxmimerit/fake-real-news-dataset/main/data/Fake.csv')
+fake_news = pd.read_csv('static/files/Fake.csv')
+
+
 plt.figure(figsize=[10, 6])
-print(sns.countplot(x ='subject', data=fake_news))
 
-fake_word = ' '.join(fake_news['text'].tolist()) # Joins all the list into one sentence
+
+fake_word = ' '.join(fake_news['text'].tolist())  # Joins all the list into one sentence
 wordcloud = WordCloud().generate(fake_word)
 plt.figure(figsize=(20, 20))
 plt.imshow(wordcloud)
@@ -34,37 +50,24 @@ plt.tight_layout(pad=0)
 plt.show()
 
 # Explore real news
-real_news = pd.read_csv('https://raw.githubusercontent.com/laxmimerit/fake-real-news-dataset/main/data/True.csv')
-plt.figure(figsize=[10, 5])
-plt.axis('off')
-plt.tight_layout(pad=0)
-sns.countplot(x='subject', data=real_news)
-plt.show()
-
+real_news = pd.read_csv('static/files/True.csv')
 # Attempt wordcloud for real news
 real_word = ' '.join(real_news['text'].tolist())
 wordcloud = WordCloud().generate(real_word)
-plt.figure(figsize=(10, 8))
-plt.imshow(wordcloud)
-plt.axis('off')
+
 
 unknown_pub = []
 for index, rows in enumerate(real_news['text'].values):
     try:
         record = rows.split('-', maxsplit=1)
-        record[1]
-        assert(len(record[0]) < 120) # Runs an exception if len of text before - is greater than 120
+        assert (len(record[0]) < 120)  # Runs an exception if len of text before - is greater than 120
     except:
         unknown_pub.append(index)
 print(unknown_pub)
 
-# real_news.iloc[unknown_pub]['text']
-real_news.iloc[1076]['text'].split(' - ')[0]
 
 # Drop row 8970 because it has no text data
 new_real_news = real_news.drop(8970, axis=0)
-
-new_real_news['text'][8970]
 
 tmp_text = []
 publisher = []
@@ -81,64 +84,48 @@ for index, rows in enumerate(new_real_news.text):
 new_real_news['publishers'] = publisher
 new_real_news['text'] = tmp_text
 
-new_real_news['publishers'][8971]
 
 # Check fake table and remove empty rows
-empty_fake_index = []
-for index, rows in enumerate(fake_news['text'].values):
-    if rows.strip() == "":
-        empty_fake_index.append(index)
+# empty_fake_index = []
+# for index, rows in enumerate(fake_news['text'].values):
+#     if rows.strip() == "":
+#         empty_fake_index.append(index)
 
-empty_fake_index[0]
 
 # Short method of doing the same thing
-empty_fake_index = [index for index, rows in enumerate(fake_news['text'].tolist()) if str(rows).strip()==""]
-len(empty_fake_index)
+empty_fake_index = [index for index, rows in enumerate(fake_news['text'].tolist()) if str(rows).strip() == ""]
 
-fake_news.iloc[empty_fake_index] # Shows all rows with no text in the fake news dataset
+
+# fake_news.iloc[empty_fake_index]  # Shows all rows with no text in the fake news dataset
 # rominagafur
 
 new_real_news['text'] = new_real_news['title'] + ".. " + new_real_news['text']
-fake_news['text'] = fake_news['title'] +".. "+ fake_news['text']
+fake_news['text'] = fake_news['title'] + ".. " + fake_news['text']
 
 new_real_news['text'] = new_real_news['text'].apply(lambda x: str(x).lower())
 fake_news['text'] = fake_news['text'].apply(lambda x: str(x).lower())
 
-fake_news['text']
 
 new_real_news['class'] = 1
 fake_news['class'] = 0
 
-real = new_real_news[['text','class']]
+real = new_real_news[['text', 'class']]
 fake = fake_news[['text', 'class']]
 
 data = real.append(fake, ignore_index=True)
 #
-# !pip install spacy==2.2.3
-# !python -m spacy download en_core_web_sm
-# !pip install beautifulsoup4==4.9.1
-# !pip install textblob==0.15.3
-# !pip install https://github.com/laxmimerit/preprocess_kgptalkie.git --upgrade --force-reinstall
-# !pip install https://github.com/laxmimerit/preprocess_kgptalkie/archive/refs/heads/master.zip --upgrade --force-reinstall
 
-import preprocess_kgptalkie as ps 
+
 data['text'] = data['text'].apply(lambda x: ps.remove_special_chars(x))
-
 class_column = data['class'].values
-print(class_column)
+
 
 word_basket = [x.split() for x in data['text'].values.tolist()]
+w2v_model = gensim.models.Word2Vec(sentences=word_basket, window=10, min_count=1)
 
-w2v_model = gensim.models.Word2Vec(sentences=word_basket, window=10,  min_count=1)
+# print(w2v_model.wv.most_similar('sports'))
 
-print(w2v_model.wv.most_similar('sports'))
 
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Embedding, LSTM, Conv1D, MaxPool1D
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, accuracy_score
 
 tokenizer = Tokenizer()
 tokenizer.fit_on_texts(word_basket)
@@ -146,26 +133,27 @@ tokenizer.fit_on_texts(word_basket)
 # tokenizer.word_index
 word_sequence = tokenizer.texts_to_sequences(word_basket)
 
-plt.hist([len(x) for x in word_sequence], bins=700)
-plt.show()
+# plt.hist([len(x) for x in word_sequence], bins=700)
+# plt.show()
 
 nos = np.array(([len(x) for x in word_sequence]))
-len(nos[nos>1000])
+# len(nos[nos > 1000])
 
 word_sequence = pad_sequences(word_sequence, maxlen=1000)
 
-print(len(word_sequence[110]))
 
 vocab = tokenizer.word_index
 vocab_size = len(vocab) + 1
+
+
 def get_weight_matrix(model):
     weight_matrix = np.zeros((vocab_size, 100))
     for word, i in vocab.items():
         weight_matrix[i] = model.wv[word]
     return weight_matrix
 
-embedding_vectors = get_weight_matrix(w2v_model)
 
+embedding_vectors = get_weight_matrix(w2v_model)
 model = Sequential()
 model.add(Embedding(vocab_size, output_dim=100, weights=[embedding_vectors], input_length=1000, trainable=False))
 model.add(LSTM(units=128))
@@ -178,33 +166,22 @@ x_train, x_test, y_train, y_test = train_test_split(word_sequence, class_column)
 model.fit(x_train, y_train, validation_split=0.3, epochs=6)
 print('model fit')
 
-y_pred = (model.predict(x_test)>= 0.5).astype(int)
 
-accuracy_score(y_test, y_pred)
+def check_news_auth(news_array):
+    x = list(news_array)
+    x = tokenizer.texts_to_sequences(x)
+    x = pad_sequences(x, 1000)
+    x = (model.predict(x) >= 0.5).astype(int)
+    if x[0][0] == 0:
+        x = "News is fake"
+    else:
+        x = "News is real"
+    return x
 
-(classification_report(y_test, y_pred))
+# check_news_auth(["Coronavirus: What's happening in Canada and around the world on Saturday"])
 
-news1 = ['Classification is algorithm']
-news2 = ['Python is a programming language']
-news3 = ['Python is not a programming language']
+# check_news_auth(["CAF personnel have previously been deployed to long-term care facilities in Nigeria and Ghana in response to outbreaks there."])
 
-x_test
+# check_news_auth(["Premier Jason Kenney has rejected calls for stricter measures, saying the province was still monitoring the impact of new public health measures that recently went into effect. Kenney and his government have previously resisted vaccine passports, lifted mask mandates and even planned to abandon test, trace and isolate protocols before backtracking as cases rose."])
 
-def check_news(news_array):
-  x = news_array
-  x = tokenizer.texts_to_sequences(x)
-  x = pad_sequences(x, 1000)
-  x = (model.predict(x) >= 0.5).astype(int)
-  if x[0][0] == 0:
-    x = "News is fake"
-  else:
-    x = "News is real"
-  return x
-
-check_news(["Coronavirus: What's happening in Canada and around the world on Saturday"])
-
-check_news(["CAF personnel have previously been deployed to long-term care facilities in Nigeria and Ghana in response to outbreaks there."])
-
-check_news(["Premier Jason Kenney has rejected calls for stricter measures, saying the province was still monitoring the impact of new public health measures that recently went into effect. Kenney and his government have previously resisted vaccine passports, lifted mask mandates and even planned to abandon test, trace and isolate protocols before backtracking as cases rose."])
-
-print(check_news(["In Europe, more than 5,000 people protested Saturday in Romania's capital of Bucharest to reject upcoming measures used by authorities to combat an alarming surge infections."]))
+# print(check_news_auth(["In Europe, more than 5,000 people protested Saturday in Romania's capital of Bucharest to reject upcoming measures used by authorities to combat an alarming surge infections."]))

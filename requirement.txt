@@ -1,0 +1,14 @@
+numpy
+pandas
+seaborn
+matplotlib
+seaborn
+nltk
+re
+gensim
+wordcloud
+tensorflow
+sklearn
+spacy
+beautifulsoup4
+textblob

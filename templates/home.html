@@ -38,8 +38,21 @@
         e.preventDefault();
         let icon = $('.my-search-btn');
         let old_txt = $(this).html();
-        $(this).text('Processing ...');
-        icon.toggleClass('spins');
+        let frm = $('#frmCheck');
+        let btn = $(this);
+        btn.text('Processing ...');
+        icon.addClass('spins');
+        $.ajax({
+            url: '/check_news',
+            method: 'POST',
+            data: frm.serialize(),
+            success: function (data) {
+                bootbox.alert(data);
+                btn.text(old_txt);
+                icon.removeClass('spins');
+            }
+        });
+
     })
 </script>
 </body>

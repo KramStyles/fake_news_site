@@ -7,10 +7,21 @@ app = Flask(__name__)
 def hello_world():
     return render_template('home.html')
 
-@app.route('/check_news')
+
+@app.route('/check_news', methods=['POST'])
 def check_news():
-    news = request.form['txtSearch']
-    return news
+    news = request.form['txtSearch'].strip()
+    if not news:
+        msg = "Ensure you enter a description to be checked!"
+    elif len(news) < 30:
+        msg = "Please input a larger paragraph to ensure the prediction is accurate"
+    else:
+        try:
+            msg = news
+        except Exception as err:
+            msg = str(err)
+    return msg
+
 
 if __name__ == '__main__':
     app.run()

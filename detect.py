@@ -34,8 +34,8 @@ from sklearn.metrics import classification_report, accuracy_score
 import preprocess_kgptalkie as ps
 
 
-# fake_news = pd.read_csv('https://raw.githubusercontent.com/laxmimerit/fake-real-news-dataset/main/data/Fake.csv')
-fake_news = pd.read_csv('static/files/Fake.csv')
+fake_news = pd.read_csv('https://raw.githubusercontent.com/laxmimerit/fake-real-news-dataset/main/data/Fake.csv')
+# fake_news = pd.read_csv('static/files/Fake.csv')
 
 
 plt.figure(figsize=[10, 6])
@@ -50,7 +50,10 @@ plt.tight_layout(pad=0)
 plt.show()
 
 # Explore real news
-real_news = pd.read_csv('static/files/True.csv')
+# real_news = pd.read_csv('static/files/True.csv')
+real_news = pd.read_csv('https://raw.githubusercontent.com/laxmimerit/fake-real-news-dataset/main/data/True.csv')
+
+
 # Attempt wordcloud for real news
 real_word = ' '.join(real_news['text'].tolist())
 wordcloud = WordCloud().generate(real_word)

@@ -5,7 +5,6 @@ seaborn
 matplotlib
 seaborn
 nltk
-re
 gensim
 wordcloud
 tensorflow

@@ -3,21 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <title>Fake News Detection System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Raleway&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+{#    <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Raleway&display=swap" rel="stylesheet">#}
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/static/bootstrap/css/styles.css">
 </head>
 <body>
-<div class="jumbotron text-center bg-dark text-white">
+<div class="bg-dark">
+    <div class="jumbotron text-center bg-dark text-white">
     <h1 class="raleway">FAKE NEWS DETECTION SYSTEM</h1>
-    <p class="poppins">Lorem ipsum dolor sit amet, consectetur adipisicing elit. A at, dolor ducimus eos esse harum iusto, minima modi nobis officiis omnis perspiciatis quaerat quas quisquam quod repellat sit soluta voluptas.</p>
+    <p class="poppins">Lorem ipsum dolor sit amet, consectetur adipisicing elit. A at, dolor ducimus eos esse harum iusto, minima modi nobis officiis omnis perspiciatis quaerat quas quisquam quod
+        repellat sit soluta voluptas.</p>
 </div>
+</div>
+<main class="container poppins">
+    <form id="frmCheck">
+        <div class="form-group fa-spin">
+            <div class="position-relative">
+                <input type="text" class="form-control pr-5" name="txtSearch">
+                <i class="bi bi-search text-dark position-absolute my-search-btn"></i>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-dark btn-block" id="btnCheck">Check News Authenticity</button>
+    </form>
+</main>
 
 <script src="/static/bootstrap/js/jquery.min.js"></script>
 <script src="/static/bootstrap/js/bootstrap.min.js"></script>
 <script src="/static/bootstrap/js/popper.min.js"></script>
 <script src="/static/bootbox/bootbox.all.min.js"></script>
-<script></script>
+<script>
+    $('#btnCheck').click(function (e) {
+        e.preventDefault();
+        let icon = $('.my-search-btn');
+        let old_txt = $(this).html();
+        $(this).text('Processing ...');
+        icon.toggleClass('spins');
+    })
+</script>
 </body>
 </html>

@@ -13,7 +13,7 @@ import seaborn
 import matplotlib.pyplot as plt
 import seaborn as sns
 import nltk
-import re
+# import re
 import gensim
 from wordcloud import WordCloud
 

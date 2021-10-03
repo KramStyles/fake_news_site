@@ -13,3 +13,9 @@ sklearn
 spacy
 beautifulsoup4
 textblob
+gunicorn
+click
+itsdangerous
+Jinja2
+MarkupSafe
+Werkzeug

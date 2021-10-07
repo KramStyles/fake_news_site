@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-
+from authenticity import check_news_auth
 app = Flask(__name__)
 
 
